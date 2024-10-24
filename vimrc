@@ -1,18 +1,6 @@
-"==========================================
-" ProjectLink: https://github.com/wklken/vim-for-server
-" Author:  wklken
-" Version: 0.2
-" Email: wklken@yeah.net
-" BlogPost: http://www.wklken.me
-" Donation: http://www.wklken.me/pages/donation.html
-" ReadMe: README.md
-" Last_modify: 2015-07-07
-" Desc: simple vim config for server, without any plugins.
-"==========================================
-
 " leader
-let mapleader = ','
-let g:mapleader = ','
+let mapleader = ' '
+let g:mapleader = ' '
 
 " syntax
 syntax on
@@ -44,8 +32,8 @@ set tm=500
 
 
 " show location
-set cursorcolumn
-set cursorline
+"set cursorcolumn
+"set cursorline
 
 
 " movement
@@ -53,8 +41,7 @@ set scrolloff=7                 " keep 3 lines when scrolling
 
 
 " show
-set ruler                       " show the current row and column
-set number                      " show line numbers
+set nu rnu                      " show relative line numbers
 set nowrap
 set showcmd                     " display incomplete commands
 set showmode                    " display current modes
@@ -70,7 +57,6 @@ set smartcase                   " no ignorecase if Uppercase char present
 
 
 " tab
-set expandtab                   " expand tabs to spaces
 set smarttab
 set shiftround
 
@@ -132,17 +118,60 @@ endif
 
 " theme
 set background=dark
-colorscheme desert
+colorscheme habamax
 
-" set mark column color
-hi! link SignColumn   LineNr
-hi! link ShowMarksHLl DiffAdd
-hi! link ShowMarksHLu DiffChange
+" status bar colors
+au InsertEnter * hi statusline guifg=black guibg=#d7afff ctermfg=black ctermbg=magenta
+au InsertLeave * hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
+hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
 
-" status line
-set statusline=%<%f\ %h%m%r%=%k[%{(&fenc==\"\")?&enc:&fenc}%{(&bomb?\",BOM\":\"\")}]\ %-14.(%l,%c%V%)\ %P
-set laststatus=2   " Always show the status line - use 2 lines for the status bar
+highlight! Normal cterm=NONE ctermbg=NONE guibg=NONE
 
+" Status line
+" default: set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %=\ %P%)
+
+" Status Line Custom
+let g:currentmode={
+    \ 'n'  : 'Normal',
+    \ 'no' : 'Normal·Operator Pending',
+    \ 'v'  : 'Visual',
+    \ 'V'  : 'V·Line',
+    \ "\<C-V>" : 'V·Block',
+    \ 's'  : 'Select',
+    \ 'S'  : 'S·Line',
+    \ '^S' : 'S·Block',
+    \ 'i'  : 'Insert',
+    \ 'R'  : 'Replace',
+    \ 'Rv' : 'V·Replace',
+    \ 'c'  : 'Command',
+    \ 'cv' : 'Vim Ex',
+    \ 'ce' : 'Ex',
+    \ 'r'  : 'Prompt',
+    \ 'rm' : 'More',
+    \ 'r?' : 'Confirm',
+    \ '!'  : 'Shell',
+    \ 't'  : 'Terminal'
+    \}
+
+set laststatus=2
+set noshowmode
+set statusline=
+set statusline+=%0*\ %{toupper(g:currentmode[mode()])}\  " The current mode
+set statusline+=%1*\ %<%F%m%r%h%w\                       " File path, modified, readonly, helpfile, preview
+set statusline+=%3*│                                     " Separator
+set statusline+=%2*\ %Y\                                 " FileType
+set statusline+=%3*│                                     " Separator
+set statusline+=%2*\ %{''.(&fenc!=''?&fenc:&enc).''}     " Encoding
+set statusline+=\ (%{&ff})                               " FileFormat (dos/unix..)
+set statusline+=%=                                       " Right Side
+set statusline+=%2*\ col:\ %02v\                         " Colomn number
+set statusline+=%3*│                                     " Separator
+set statusline+=%1*\ ln:\ %02l/%L\ (%3p%%)\              " Line number / total lines, percentage of document
+
+hi User1 ctermfg=007 ctermbg=239 guibg=#4e4e4e guifg=#adadad
+hi User2 ctermfg=007 ctermbg=236 guibg=#303030 guifg=#adadad
+hi User3 ctermfg=236 ctermbg=236 guibg=#303030 guifg=#303030
+hi User4 ctermfg=239 ctermbg=239 guibg=#4e4e4e guifg=#4e4e4e
 
 " ============================ specific file type ===========================
 
@@ -178,6 +207,14 @@ endfun
 
 " ============================ key map ============================
 
+inoremap "  ""<Left>
+inoremap '  ''<Left>
+inoremap `  ``<Left>
+inoremap (  ()<Left>
+inoremap [  []<Left>
+inoremap {  {}<Left>
+inoremap <  <><Left>
+
 nnoremap k gk
 nnoremap gk k
 nnoremap j gj
@@ -197,13 +234,11 @@ set pastetoggle=<F5>            "    when in insert mode, press <F5> to go to
 au InsertLeave * set nopaste
 nnoremap <F6> :exec exists('syntax_on') ? 'syn off' : 'syn on'<CR>
 
-" kj 替换 Esc
-inoremap kj <Esc>
-
 " Quickly close the current window
 nnoremap <leader>q :q<CR>
+
 " Quickly save the current file
-nnoremap <leader>w :w<CR>
+nnoremap <C-s> :w<CR>
 
 " select all
 map <Leader>sa ggVG"
@@ -221,15 +256,19 @@ nnoremap ` '
 " nnoremap # *
 " nnoremap * #
 
-"Keep search pattern at the center of the screen."
+" Keep search pattern at the center of the screen."
 nnoremap <silent> n nzz
 nnoremap <silent> N Nzz
 nnoremap <silent> * *zz
 nnoremap <silent> # #zz
 nnoremap <silent> g* g*zz
 
+" Keep cursor position at the center of the screen.
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
+
 " remove highlight
-noremap <silent><leader>/ :nohls<CR>
+noremap <silent><ESC> :nohls<CR>
 
 "Reselect visual block after indent/outdent.调整缩进后自动选中，方便再次操作
 vnoremap < <gv
@@ -245,9 +284,6 @@ nnoremap ; :
 " Shift+H goto head of the line, Shift+L goto end of the line
 nnoremap H ^
 nnoremap L $
-
-" save
-cmap w!! w !sudo tee >/dev/null %
 
 " command mode, ctrl-a to head， ctrl-e to tail
 cnoremap <C-j> <t_kd>
